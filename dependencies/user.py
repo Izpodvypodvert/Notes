@@ -25,11 +25,11 @@ bearer_transport = BearerTransport(tokenUrl='auth/jwt/login')
 
 
 def get_jwt_strategy() -> JWTStrategy:
-    """Определяем стратегию: хранение токена в виде JWT."""
+    """Defining the strategy: storing the token in the form of a JWT."""
     return JWTStrategy(secret='SECRET', lifetime_seconds=3600)
 
 
-# Создаём объект бэкенда аутентификации с выбранными параметрами.
+# Creating an authentication backend object with the selected parameters.
 auth_backend = AuthenticationBackend(
     name='jwt',
     transport=bearer_transport,
@@ -53,8 +53,8 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, UUID4]):
             )
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
-        """Метод для действий после успешной регистрации пользователя."""
-        print(f'Пользователь {user.email} зарегистрирован.')
+        """Method for actions after successful user registration."""
+        print(f'The user {user.email} is registered.')
 
 
 async def get_user_manager(user_db=Depends(get_user_db)):

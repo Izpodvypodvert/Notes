@@ -8,7 +8,7 @@ from models.note import Note
 from models.user import User
 
 
-# Если запускать приложение из контейнера
+# If you run the application from a container
 # DATABASE_URL = 'postgresql+asyncpg://postgres:postgres@db:5432/foo'
 DATABASE_URL = 'postgresql+asyncpg://postgres:postgres@localhost:5432/foo'
 

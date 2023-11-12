@@ -6,8 +6,6 @@ from schemas.user import UserCreate, UserUpdate, UserRead
 router = APIRouter()
 
 router.include_router(
-    # В роутер аутентификации
-    # передается объект бэкенда аутентификации.
     fastapi_users.get_auth_router(auth_backend),
     prefix='/auth/jwt',
     tags=['auth'],
@@ -30,10 +28,10 @@ router.include_router(
     deprecated=True
 )
 def delete_user(id: str):
-    """Переопределен метод удаления пользователя, чтобы никто, даже суперпользователь,
-    не мог отправить запрос на удаление пользователя.
-    При необходимости пользоветеля можно деактивировать is_active=False"""
+    """Redefined the method of deleting a user so that no one, not even the superuser,
+    could not send a request to delete the user.
+    If necessary, the user can be deactivated is_active=False"""
     raise HTTPException(
         status_code=405,
-        detail="Удаление пользователей запрещено!"
+        detail="Deleting users is forbidden!"
     )
