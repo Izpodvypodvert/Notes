@@ -43,22 +43,27 @@ async def create_notes():
         await session.commit()
 
         note_1 = Note(
-            title="Deadpond",
-            description="Dive Wilson",
+            title="utils",
+            description="write a custom validator and a custom error",
             user_id=user.id
         )
         note_2 = Note(
-            title="Spider-Boy",
-            description="Pedro Parqueador",
+            title="add a readme",
+            description="describe how to deploy the project locally",
             user_id=user.id
         )
         note_3 = Note(
-            title="Rusty-Man",
-            description="Tommy Sharp",
+            title="Alembic",
+            description="configure alembic",
+            user_id=user.id
+        )
+        note_4 = Note(
+            title="Security",
+            description="move sensitive data in .env file",
             user_id=user.id
         )
 
-        session.add_all([note_1, note_2, note_3])
+        session.add_all([note_1, note_2, note_3, note_4])
         await session.commit()
 
 
