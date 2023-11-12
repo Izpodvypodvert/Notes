@@ -54,8 +54,8 @@ This is a simple CRUD application for managing notes, built with FastAPI, SQLMod
     alembic upgrade head
     ```
 7. Start the FastAPI server:
-   `sh
-uvicorn main:app --reload
-`
-   Usage
-   After starting the FastAPI server, you can visit http://127.0.0.1:8000/docs to see the Swagger UI and interact with the API.
+    ```sh
+    uvicorn main:app --reload
+    ```
+    Usage
+    After starting the FastAPI server, you can visit http://127.0.0.1:8000/docs to see the Swagger UI and interact with the API.
