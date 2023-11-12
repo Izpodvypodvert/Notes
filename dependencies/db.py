@@ -68,7 +68,7 @@ async def create_notes():
 
 
 async def main():
-    await create_db_and_tables()
+    # await create_db_and_tables()
     await create_notes()
 
 if __name__ == "__main__":

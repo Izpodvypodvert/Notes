@@ -45,13 +45,13 @@ This is a simple CRUD application for managing notes, built with FastAPI, SQLMod
     ```sh
     docker-compose up -d
     ```
-5. Initialize the database and create tables:
-    ```sh
-    python -m dependencies.db
-    ```
-6. Run the Alembic migrations to the latest version (optional, if you have made changes to the models):
+5. Run the Alembic migrations to the latest version (optional, if you have made changes to the models):
     ```sh
     alembic upgrade head
+    ```
+6. Add notes to db and create superuser:
+    ```sh
+    python -m dependencies.db
     ```
 7. Start the FastAPI server:
     ```sh
