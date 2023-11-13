@@ -51,7 +51,7 @@ This is a simple CRUD application for managing notes, built with FastAPI, SQLMod
     ```
 6. Add notes to db and create superuser:
     ```sh
-    python -m dependencies.db
+    python -m utils.initial_data
     ```
 7. Start the FastAPI server:
     ```sh
