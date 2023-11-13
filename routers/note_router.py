@@ -9,6 +9,7 @@ from repositories.note_repository import NoteRepository
 from services.note_service import NoteService
 from dependencies.db import get_async_session
 from dependencies.user import current_user
+from utils.exceptions import TooManyNotesError
 
 router = APIRouter()
 
@@ -32,7 +33,12 @@ async def create_note(
         note_service: NoteService = Depends(get_note_service),
         user: User = Depends(current_user),
 ):
-    return await note_service.create_note(note, user.id)
+    try:
+        new_note = await note_service.create_note(note, user.id)
+    except TooManyNotesError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return new_note
 
 
 @router.get("/{note_id}", response_model=Note)

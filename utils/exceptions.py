@@ -1,14 +1,6 @@
-class BusinessRuleViolation(Exception):
-    """Exception raised when a business rule is violated."""
+class TooManyNotesError(Exception):
+    """Exception raised when the maximum number of notes is reached."""
 
-    def __init__(self, message: str, payload: dict = {}):
+    def __init__(self, message: str = "You have reached the maximum number of notes allowed."):
         self.message = message
-        self.payload = payload
         super().__init__(self.message)
-
-    def __str__(self):
-        return (
-            f"{self.message} | Payload: {self.payload}"
-            if self.payload
-            else self.message
-        )

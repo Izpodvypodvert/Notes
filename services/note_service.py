@@ -5,6 +5,7 @@ from pydantic import UUID4
 from models.note import Note
 from schemas.note_schema import NoteBase
 from repositories.note_repository import NoteRepository
+from utils.exceptions import TooManyNotesError
 
 
 class NoteService:
@@ -15,6 +16,9 @@ class NoteService:
         return await self.note_repository.get_all_notes(user_id)
 
     async def create_note(self, note: NoteBase, user_id: UUID4) -> Note:
+        notes = await self.note_repository.get_all_notes(user_id)
+        if len(notes) >= 10:
+            raise TooManyNotesError("You cannot create more than 10 notes.")
         return await self.note_repository.create_note(note, user_id)
 
     async def get_note_by_id(self, note_id: int, user_id: UUID4) -> Optional[Note]:
