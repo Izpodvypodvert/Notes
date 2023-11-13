@@ -41,19 +41,36 @@ This is a simple CRUD application for managing notes, built with FastAPI, SQLMod
     ```sh
     pip install -r requirements.txt
     ```
-4. Start the PostgreSQL container:
+4. Configuring the .env file:
+   Сreate a `.env` file in the root directory of the project.
+
+```plaintext
+    # PostgreSQL credentials
+    POSTGRES_USER=your_username
+    POSTGRES_PASSWORD=your_password
+    POSTGRES_DB=your_db_name
+
+    # Database URL for connecting
+    DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}
+
+    # Superuser details
+    SUPERUSER_EMAIL=your_email@example.com
+    SUPERUSER_PASSWORD=your_password
+```
+
+5. Start the PostgreSQL container:
     ```sh
     docker-compose up -d
     ```
-5. Run the Alembic migrations to the latest version (optional, if you have made changes to the models):
+6. Run the Alembic migrations to the latest version (optional, if you have made changes to the models):
     ```sh
     alembic upgrade head
     ```
-6. Add notes to db and create superuser:
+7. Add notes to db and create superuser:
     ```sh
     python -m utils.initial_data
     ```
-7. Start the FastAPI server:
+8. Start the FastAPI server:
     ```sh
     uvicorn main:app --reload
     ```
