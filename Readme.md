@@ -41,8 +41,7 @@ This is a simple CRUD application for managing notes, built with FastAPI, SQLMod
     ```sh
     pip install -r requirements.txt
     ```
-4. Configuring the .env file:
-   Сreate a `.env` file in the root directory of the project.
+4. Сreate a `.env` file in the root directory of the project:
 
 ```plaintext
     # PostgreSQL credentials
