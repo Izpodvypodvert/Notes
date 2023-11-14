@@ -44,17 +44,25 @@ This is a simple CRUD application for managing notes, built with FastAPI, SQLMod
 4. Сreate a `.env` file in the root directory of the project:
 
 ```plaintext
-    # PostgreSQL credentials
-    POSTGRES_USER=your_username
-    POSTGRES_PASSWORD=your_password
-    POSTGRES_DB=your_db_name
-
-    # Database URL for connecting
+    Settings for connecting to the main PostgreSQL database
+    POSTGRES_USER=postgres # PostgreSQL username
+    POSTGRES_PASSWORD=postgres # PostgreSQL user password
+    POSTGRES_DB=foo # Name of the main database
     DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}
 
-    # Superuser details
-    SUPERUSER_EMAIL=your_email@example.com
-    SUPERUSER_PASSWORD=your_password
+    Settings for connecting to the PostgreSQL test database
+    TEST_POSTGRES_USER=postgres_test # Username for the test database
+    TEST_POSTGRES_PASSWORD=postgres_test # Password for the test database user
+    POSTGRES_TEST_DB=test_db # Name of the test database
+    TEST_DATABASE_URL=postgresql+asyncpg://${TEST_POSTGRES_USER}:${TEST_POSTGRES_PASSWORD}@localhost:5433/${POSTGRES_TEST_DB}
+
+    Superuser credentials
+    SUPERUSER_EMAIL=user@example.com # Superuser email
+    SUPERUSER_PASSWORD=password # Superuser password
+
+    General settings
+    TEST=False # Flag for running in main mode with main db
+    SECRET=SECRET # Secret key of the application
 ```
 
 5. Start the PostgreSQL container:
@@ -75,3 +83,18 @@ This is a simple CRUD application for managing notes, built with FastAPI, SQLMod
     ```
     Usage
     After starting the FastAPI server, you can visit http://127.0.0.1:8000/docs to see the Swagger UI and interact with the API.
+
+### How to start testing
+
+1. Don't forget to set the test flag to True:
+    ```sh
+    TEST=True # Flag for running in test mode with test db
+    ```
+2. Start the PostgreSQL container with test db:
+    ```sh
+    docker-compose -f docker-compose.test.yml up
+    ```
+3. Run the tests:
+    ```sh
+    pytest
+    ```

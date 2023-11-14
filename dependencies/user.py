@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from typing import Optional, Union
 
 from fastapi import Depends, Request
@@ -17,6 +19,9 @@ from models.user import User
 from schemas.user import UserCreate
 
 
+load_dotenv()
+
+
 async def get_user_db(session: AsyncSession = Depends(get_async_session)):
     yield SQLModelUserDatabaseAsync(session=session, user_model=User)
 
@@ -26,7 +31,7 @@ bearer_transport = BearerTransport(tokenUrl='auth/jwt/login')
 
 def get_jwt_strategy() -> JWTStrategy:
     """Defining the strategy: storing the token in the form of a JWT."""
-    return JWTStrategy(secret='SECRET', lifetime_seconds=3600)
+    return JWTStrategy(secret=os.environ['SECRET'], lifetime_seconds=3600)
 
 
 # Creating an authentication backend object with the selected parameters.

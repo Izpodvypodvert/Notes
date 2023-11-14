@@ -1,7 +1,11 @@
 import os
-from dotenv import load_dotenv
+import random
+import string
+import jwt
+from datetime import datetime, timedelta
 
-from sqlmodel import SQLModel
+from dotenv import load_dotenv
+from sqlmodel import SQLModel, delete
 from fastapi_users.password import PasswordHelper
 
 from dependencies.db import engine, AsyncSessionLocal
@@ -9,14 +13,20 @@ from models.note import Note
 from models.user import User
 
 
-load_dotenv('.env')
-SUPERUSER_EMAIL = os.environ['SUPERUSER_EMAIL']
-SUPERUSER_PASSWORD = os.environ['SUPERUSER_PASSWORD']
+load_dotenv(".env")
+SECRET = os.environ["SECRET"]
+SUPERUSER_EMAIL = os.environ["SUPERUSER_EMAIL"]
+SUPERUSER_PASSWORD = os.environ["SUPERUSER_PASSWORD"]
 
 
 async def create_db_and_tables():
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
+
+
+async def drop_db_and_tables():
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.drop_all)
 
 
 async def create_user(
@@ -38,6 +48,12 @@ async def create_user(
         await session.commit()
         await session.refresh(user)
         return user
+
+
+async def delete_user(user):
+    async with AsyncSessionLocal() as session:
+        await session.delete(user)
+        await session.commit()
 
 
 async def create_user_notes(user: User):
@@ -66,6 +82,41 @@ async def create_user_notes(user: User):
         ]
         session.add_all(notes)
         await session.commit()
+        return notes
+
+
+async def delete_user_notes(test_user):
+    async with AsyncSessionLocal() as session:
+        await session.execute(
+            delete(Note).where(Note.user_id == test_user.id)
+        )
+        await session.commit()
+
+
+async def get_test_user_token(test_user):
+    expire = datetime.utcnow() + timedelta(hours=1)
+    token = jwt.encode({
+        "sub": str(test_user.id),
+        "aud": ["fastapi-users:auth"],
+        "exp": expire
+    },
+        SECRET, algorithm="HS256")
+
+    return token
+
+
+async def create_test_user():
+    test_user_email = await random_email()
+    test_user = await create_user(
+        test_user_email,
+        "test_password"
+    )
+    return test_user
+
+
+async def random_email():
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(10)) + "@example.com"
 
 
 async def main():
@@ -76,6 +127,7 @@ async def main():
         superuser=True
     )
     await create_user_notes(user)
+
 
 if __name__ == "__main__":
     import asyncio
