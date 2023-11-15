@@ -3,6 +3,7 @@ from pydantic import UUID4
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from models.note import Note
+from models.user import User
 from schemas.note_schema import NoteBase
 
 
@@ -33,10 +34,7 @@ class NoteRepository:
         return note
 
     async def update_note(self, note_id: int, note_data: NoteBase, user_id: UUID4) -> Optional[Note]:
-        statement = select(Note).where(
-            Note.id == note_id, Note.user_id == user_id)
-        result = await self.session.execute(statement)
-        note = result.scalars().first()
+        note = await self.get_note_by_id(note_id, user_id)
         if note:
             note_data_dict = note_data.dict(exclude_unset=True)
             for key, value in note_data_dict.items():
@@ -47,10 +45,7 @@ class NoteRepository:
         return note
 
     async def delete_note(self, note_id: int, user_id: UUID4) -> Optional[Note]:
-        statement = select(Note).where(
-            Note.id == note_id, Note.user_id == user_id)
-        result = await self.session.execute(statement)
-        note = result.scalars().first()
+        note = await self.get_note_by_id(note_id, user_id)
         if note:
             await self.session.delete(note)
             await self.session.commit()
