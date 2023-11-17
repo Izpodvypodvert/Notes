@@ -16,7 +16,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from dependencies.db import get_async_session
 from models.user import User
-from schemas.user import UserCreate
+from schemas.user_schema import UserCreate
 
 
 load_dotenv()

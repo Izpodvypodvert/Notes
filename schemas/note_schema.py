@@ -1,16 +1,17 @@
 from sqlmodel import Field, SQLModel
 from pydantic import validator
-from typing import Optional
-from datetime import datetime
 
-from utils.validators import validate_note_title
+from utils.validators import validate_title
 
 
-class NoteBase(SQLModel, table=False):
-    title: str
+class TitleDescriptionBase(SQLModel, table=False):
+    title: str = Field(max_length=200)
     description: str
 
     @validator('title')
-    def title_must_be_captialized(cls, title):
-        validate_note_title(title)
+    def title_validate(cls, title):
+        validate_title(title)
         return title
+
+    def __repr__(self):
+        return f'{self.title}'

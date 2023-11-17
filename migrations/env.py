@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config  # type: ignore
 from alembic import context
 
 from models.user import User
+from models.category import Category
 from models.note import Note
 
 

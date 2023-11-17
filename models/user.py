@@ -5,8 +5,16 @@ from sqlmodel import Relationship
 
 if TYPE_CHECKING:
     from models.note import Note
+    from models.category import Category
 
 
 class User(SQLModelBaseUserDB, table=True):
     """The user's model."""
-    notes: List["Note"] = Relationship(back_populates="user")
+    notes: List["Note"] = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={"cascade": "delete"}
+    )
+    categories: List["Category"] = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={"cascade": "delete"}
+    )
