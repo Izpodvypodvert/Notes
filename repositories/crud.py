@@ -1,4 +1,3 @@
-from typing import Type, List, Generic, TypeVar, Optional
 from pydantic import UUID4
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -7,11 +6,7 @@ from schemas.note_schema import TitleDescriptionBase
 from schemas.user_schema import UserRelatedBase
 
 
-T = TypeVar('T', bound=UserRelatedBase)
-S = TypeVar('S', bound=TitleDescriptionBase)
-
-
-class CRUDRepository(Generic[T, S]):
+class CRUDRepository[T: UserRelatedBase, S: TitleDescriptionBase]:
     """
     A base repository class providing basic CRUD (Create, Read, Update, Delete) 
     operations for a generic entity type in relation to a User.
@@ -28,11 +23,11 @@ class CRUDRepository(Generic[T, S]):
         delete(user_id, entity_id): Removes an entity from the repository by its ID, ensuring it belongs to the specified user.
     """
 
-    def __init__(self, session: AsyncSession, model: Type[T]):
+    def __init__(self, session: AsyncSession, model: type[T]):
         self.session = session
         self.model = model
 
-    async def get_all(self, user_id: UUID4) -> List[T]:
+    async def get_all(self, user_id: UUID4) -> list[T]:
         statement = select(self.model).where(self.model.user_id == user_id)
         result = await self.session.execute(statement)
         return result.scalars().all()
@@ -44,13 +39,13 @@ class CRUDRepository(Generic[T, S]):
         await self.session.refresh(obj)
         return obj
 
-    async def get_by_id(self, obj_id: int, user_id: UUID4) -> Optional[T]:
+    async def get_by_id(self, obj_id: int, user_id: UUID4) -> T | None:
         statement = select(self.model).where(
             self.model.id == obj_id, self.model.user_id == user_id)
         result = await self.session.execute(statement)
         return result.scalars().first()
 
-    async def update(self, obj_id: int, schema: S, user_id: UUID4) -> Optional[T]:
+    async def update(self, obj_id: int, schema: S, user_id: UUID4) -> T | None:
         obj = await self.get_by_id(obj_id, user_id)
         if obj:
             update_data = schema.dict(exclude_unset=True)
@@ -61,7 +56,7 @@ class CRUDRepository(Generic[T, S]):
             await self.session.refresh(obj)
         return obj
 
-    async def delete(self, obj_id: int, user_id: UUID4) -> Optional[T]:
+    async def delete(self, obj_id: int, user_id: UUID4) -> T | None:
         obj = await self.get_by_id(obj_id, user_id)
         if obj:
             await self.session.delete(obj)

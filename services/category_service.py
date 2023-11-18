@@ -1,4 +1,10 @@
+from pydantic import UUID4
+
+from models.note import Note
+from schemas.note_schema import TitleDescriptionBase
 from services.base_service import BaseService
+from utils.enums import CategoryLimits
+from utils.exceptions import TooManyCategories
 
 
 class CategoryService(BaseService):
@@ -18,3 +24,11 @@ class CategoryService(BaseService):
 
     The CategoryService uses a CRUDRepository specifically designed for Category objects.
     """
+
+    async def create_category(self, category: TitleDescriptionBase, user_id: UUID4) -> Note:
+        notes = await self.repository.get_all(user_id)
+        if len(notes) >= CategoryLimits.MAX_Category_PER_USER.value:
+            raise TooManyCategories(
+                CategoryLimits.TOO_MANY_CATEGORIES_ERROR_MSG.value
+            )
+        return await self.repository.create(category, user_id)
