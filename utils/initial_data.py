@@ -14,9 +14,9 @@ from models.user import User
 
 
 load_dotenv(".env")
-SECRET = os.environ["SECRET"]
-SUPERUSER_EMAIL = os.environ["SUPERUSER_EMAIL"]
-SUPERUSER_PASSWORD = os.environ["SUPERUSER_PASSWORD"]
+SECRET = os.environ.get("SECRET")
+SUPERUSER_EMAIL = os.environ.get("SUPERUSER_EMAIL")
+SUPERUSER_PASSWORD = os.environ.get("SUPERUSER_PASSWORD")
 
 
 async def create_db_and_tables():

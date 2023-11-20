@@ -7,8 +7,12 @@ from sqlalchemy.orm import sessionmaker
 
 
 load_dotenv('.env')
-TEST = os.environ["TEST"] == "True"
-DATABASE_URL = os.environ['DATABASE_URL'] if not TEST else os.environ['TEST_DATABASE_URL']
+TEST = os.environ.get("TEST") == "True"
+
+if TEST:
+    DATABASE_URL = os.environ.get('TEST_DATABASE_URL')
+else:
+    DATABASE_URL = os.environ.get('DATABASE_URL')
 
 engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 

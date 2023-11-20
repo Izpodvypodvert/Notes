@@ -1,6 +1,7 @@
 # FastAPI Notes Application
 
-This is a simple CRUD application for managing notes, built with FastAPI, SQLModel, and PostgreSQL. It features user authentication and allows users to create, read, update, and delete notes.
+This is a simple CRUD asynchronous application for managing notes, built with FastAPI, SQLModel, and PostgreSQL. It features user authentication and allows users to create, read, update, and delete notes.
+This project uses a custom version of fastapi-cache2, modified to suit specific requirements. The primary reason for this customization is the incompatibility of the pendulum library, a dependency in the standard fastapi-cache2, with Python 3.12. See [customization details below](#customization-details).
 
 ## Features
 
@@ -9,6 +10,7 @@ This is a simple CRUD application for managing notes, built with FastAPI, SQLMod
 -   Notes are private to users
 -   Asynchronous database operations
 -   Containerized PostgreSQL database
+-   Endpoint caching with Redis
 
 ## Technology Stack
 
@@ -16,12 +18,14 @@ This is a simple CRUD application for managing notes, built with FastAPI, SQLMod
 -   **SQLModel**: SQL databases in Python with asyncio, made easy with a combination of SQLAlchemy for query building and Pydantic for data validation.
 -   **PostgreSQL**: An open source object-relational database system with over 30 years of active development.
 -   **Alembic**: A lightweight database migration tool for usage with the SQLAlchemy Database Toolkit for Python.
+-   **Redis**: An advanced key-value store, often used as a cache and message broker, with support for data structures such as strings, hashes, lists, sets, and sorted sets with range queries.
+-   **Pytest**: A powerful tool for testing Python code, providing a simple and flexible framework for writing and executing tests.
 
 ## Getting Started
 
 ### Prerequisites
 
--   Python 3.7+
+-   Python 3.12
 -   Docker
 -   Docker Compose (for running PostgreSQL container)
 
@@ -63,6 +67,7 @@ This is a simple CRUD application for managing notes, built with FastAPI, SQLMod
     General settings
     TEST=False # Flag for running in main mode with main db
     SECRET=SECRET # Secret key of the application
+    REDIS_URL=redis://localhost:6379
 ```
 
 5. Start the PostgreSQL container:
@@ -98,3 +103,29 @@ This is a simple CRUD application for managing notes, built with FastAPI, SQLMod
     ```sh
     pytest
     ```
+
+## Customization Details
+
+### Removal of Pendulum Dependency
+
+-   The standard `fastapi-cache2` relies on `pendulum` for date and time handling.
+-   As `pendulum` does not support Python 3.12, it has been removed from our custom implementation.
+-   Instead, Python's native `datetime` module is utilized for handling date and time.
+
+### Custom Converters
+
+The following custom converters have been implemented to replace `pendulum` functionality:
+
+```python
+CONVERTERS = {
+    "date": lambda x: datetime.date.fromisoformat(x),
+    "datetime": lambda x: datetime.datetime.fromisoformat(x),
+    "decimal": Decimal,
+}
+```
+
+### Endpoint Caching: read_notes
+
+-   The endpoint read_notes is specifically optimized for caching.
+-   Caching is personalized: each user's notes are cached individually.
+-   The cache for a user's notes is invalidated upon any modification (creation, update, or deletion) of their notes.
