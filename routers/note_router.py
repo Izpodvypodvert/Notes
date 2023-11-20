@@ -1,5 +1,5 @@
-import asyncio
 from fastapi import APIRouter, Depends, HTTPException, status
+from httpx import get
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from models.note import Note
@@ -11,7 +11,9 @@ from repositories.note_repository import NoteRepository
 from schemas.note_schema import TitleDescriptionBase
 from services.note_service import NoteService
 from utils.cache import cache_key_builder_with_user_id, clear_user_chache
+from utils.constants import URL_BORED_API
 from utils.exceptions import TooManyNotesError
+from utils.fetching_data import fetch_activity
 
 
 router = APIRouter()
@@ -28,7 +30,6 @@ async def read_notes(
     note_service: NoteService = Depends(get_note_service),
     user: User = Depends(current_user),
 ):
-    await asyncio.sleep(10)
     notes = await note_service.get_all(user.id)
     return notes
 
@@ -44,6 +45,22 @@ async def create_note(
     except TooManyNotesError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+    await clear_user_chache(user)
+    return new_note
+
+
+@router.post("/create_random_note", response_model=Note, status_code=status.HTTP_201_CREATED)
+async def create_random_note_if_bored(
+    note_service: NoteService = Depends(get_note_service),
+    user: User = Depends(current_user)
+):
+    bored_note = await fetch_activity(URL_BORED_API)
+    note_data = TitleDescriptionBase(title=bored_note.get(
+        'type'), description=bored_note.get('activity'))
+    try:
+        new_note = await note_service.create_note(note_data, user.id)
+    except TooManyNotesError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     await clear_user_chache(user)
     return new_note
 
