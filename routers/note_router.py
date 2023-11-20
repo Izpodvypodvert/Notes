@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from httpx import get
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from models.note import Note
@@ -8,7 +7,7 @@ from custom_libs.fastapi_cache.decorator import cache
 from dependencies.db import get_async_session
 from dependencies.user import current_user
 from repositories.note_repository import NoteRepository
-from schemas.note_schema import TitleDescriptionBase
+from schemas.note_schema import NoteBase
 from services.note_service import NoteService
 from utils.cache import cache_key_builder_with_user_id, clear_user_chache
 from utils.constants import URL_BORED_API
@@ -36,7 +35,7 @@ async def read_notes(
 
 @router.post("/", response_model=Note, status_code=status.HTTP_201_CREATED)
 async def create_note(
-        note: TitleDescriptionBase,
+        note: NoteBase,
         note_service: NoteService = Depends(get_note_service),
         user: User = Depends(current_user),
 ):
@@ -55,7 +54,7 @@ async def create_random_note_if_bored(
     user: User = Depends(current_user)
 ):
     bored_note = await fetch_activity(URL_BORED_API)
-    note_data = TitleDescriptionBase(title=bored_note.get(
+    note_data = NoteBase(title=bored_note.get(
         'type'), description=bored_note.get('activity'))
     try:
         new_note = await note_service.create_note(note_data, user.id)
@@ -79,7 +78,7 @@ async def read_note(
 
 @router.put("/{note_id}", response_model=Note)
 async def update_note(
-        note_id: int, note_data: TitleDescriptionBase,
+        note_id: int, note_data: NoteBase,
         note_service: NoteService = Depends(get_note_service),
         user: User = Depends(current_user),
 ):

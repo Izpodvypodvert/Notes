@@ -1,6 +1,6 @@
 from sqlmodel import Field, Relationship
 from pydantic import UUID4
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from datetime import datetime
 
 from models.category import Category
@@ -12,9 +12,9 @@ if TYPE_CHECKING:
 
 
 class Note(UserRelatedBase, TitleDescriptionBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     user: "User" = Relationship(back_populates="notes")
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    category_id: Optional[UUID4] = Field(
+    category_id: UUID4 | None = Field(
         default=None, foreign_key="category.id")
     category: Category = Relationship(back_populates="notes")
