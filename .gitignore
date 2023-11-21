@@ -186,4 +186,5 @@ pyrightconfig.json
 
 # not now
 commands.txt
-test/test_login.py
+test/test_login.pys
+requirements2.txt

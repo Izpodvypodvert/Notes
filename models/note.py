@@ -13,7 +13,12 @@ if TYPE_CHECKING:
 
 class Note(UserRelatedBase, TitleDescriptionBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    user: "User" = Relationship(back_populates="notes")
+    user: "User" = Relationship(
+        back_populates="notes",
+        sa_relationship_kwargs={
+            "lazy": "joined",
+            "primaryjoin": "Note.user_id==User.id",
+        })
     created_at: datetime = Field(default_factory=datetime.utcnow)
     category_id: UUID4 | None = Field(
         default=None, foreign_key="category.id")

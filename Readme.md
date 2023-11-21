@@ -11,6 +11,17 @@ This project uses a custom version of fastapi-cache2, modified to suit specific 
 -   Asynchronous database operations
 -   Containerized PostgreSQL database
 -   Endpoint caching with Redis
+-   Asynchronous Email Dispatch with Celery
+-   Task Monitoring with Flower
+
+## Additional Features
+
+    Asynchronous Email Dispatch with Celery and Flower
+    This project leverages Celery, an asynchronous task queue, along with Flower for monitoring, to handle the dispatch of emails containing user Notes. Redis is used as the broker for these tasks.
+
+    Celery: Used for managing asynchronous tasks, specifically for sending emails in the background.
+    Flower: An accompanying tool for Celery that provides monitoring capabilities, allowing visibility into the task queue and performance.
+    Redis: Acts as a message broker for Celery, queuing the email tasks created by the application.
 
 ## Technology Stack
 
@@ -20,6 +31,8 @@ This project uses a custom version of fastapi-cache2, modified to suit specific 
 -   **Alembic**: A lightweight database migration tool for usage with the SQLAlchemy Database Toolkit for Python.
 -   **Redis**: An advanced key-value store, often used as a cache and message broker, with support for data structures such as strings, hashes, lists, sets, and sorted sets with range queries.
 -   **Pytest**: A powerful tool for testing Python code, providing a simple and flexible framework for writing and executing tests.
+-   **Celery**: An asynchronous task queue/job queue based on distributed message passing, focused on real-time operation and supporting scheduling.
+-   **Flower**: A web-based tool for monitoring and administrating Celery clusters, providing insights into tasks and worker status.
 
 ## Getting Started
 
@@ -32,33 +45,27 @@ This project uses a custom version of fastapi-cache2, modified to suit specific 
 ### Installation
 
 1. Clone the repository:
+
     ```sh
     git clone https://github.com/Izpodvypodvert/Notes.git
     cd Notes
     ```
-2. Create a virtual environment and activate it:
-    ```sh
-    python -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-    ```
-3. Install the dependencies:
-    ```sh
-    pip install -r requirements.txt
-    ```
-4. Сreate a `.env` file in the root directory of the project:
+
+2. Сreate a `.env` file in the root directory of the project:
 
 ```plaintext
     Settings for connecting to the main PostgreSQL database
     POSTGRES_USER=postgres # PostgreSQL username
     POSTGRES_PASSWORD=postgres # PostgreSQL user password
     POSTGRES_DB=foo # Name of the main database
-    DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}
+    HOST=localhost # Change it to db for development in docker
+    DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${HOST}:5432/${POSTGRES_DB}
 
     Settings for connecting to the PostgreSQL test database
     TEST_POSTGRES_USER=postgres_test # Username for the test database
     TEST_POSTGRES_PASSWORD=postgres_test # Password for the test database user
     POSTGRES_TEST_DB=test_db # Name of the test database
-    TEST_DATABASE_URL=postgresql+asyncpg://${TEST_POSTGRES_USER}:${TEST_POSTGRES_PASSWORD}@localhost:5433/${POSTGRES_TEST_DB}
+    TEST_DATABASE_URL=postgresql+asyncpg://${TEST_POSTGRES_USER}:${TEST_POSTGRES_PASSWORD}@${HOST}:5433/${POSTGRES_TEST_DB}
 
     Superuser credentials
     SUPERUSER_EMAIL=user@example.com # Superuser email
@@ -67,26 +74,26 @@ This project uses a custom version of fastapi-cache2, modified to suit specific 
     General settings
     TEST=False # Flag for running in main mode with main db
     SECRET=SECRET # Secret key of the application
-    REDIS_URL=redis://localhost:6379
+
+    Redis settings
+    REDIS_DOCKER=localhost # Change it to redis for development in docker
+    REDIS_URL=redis://${REDIS_DOCKER}:6379
+
+    Smtp settings
+    SMTP_HOST=smtp.gmail.com
+    SMTP_PORT=465
+    SMTP_USER=your_email@gmail.com
+    SMTP_PASSWORD=hehe hehe hehe hehe
 ```
 
-5. Start the PostgreSQL container:
+3. Run the services defined in docker-compose.yml using the following command:
     ```sh
     docker-compose up -d
     ```
-6. Run the Alembic migrations to the latest version (optional, if you have made changes to the models):
+4. If you need to perform initial database setup or create a superuser, use the following command:
     ```sh
-    alembic upgrade head
+    docker exec fastapi_app python -m utils.initial_data
     ```
-7. Add notes to db and create superuser:
-    ```sh
-    python -m utils.initial_data
-    ```
-8. Start the FastAPI server:
-    ```sh
-    uvicorn main:app --reload
-    ```
-    Usage
     After starting the FastAPI server, you can visit http://127.0.0.1:8000/docs to see the Swagger UI and interact with the API.
 
 ### How to start testing

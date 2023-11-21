@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
+from starlette.status import (
+    HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR)
 
 from models.note import Note
 from models.user import User
@@ -9,6 +11,7 @@ from dependencies.user import current_user
 from repositories.note_repository import NoteRepository
 from schemas.note_schema import NoteBase
 from services.note_service import NoteService
+from tasks.send_email_task import send_email_with_notes
 from utils.cache import cache_key_builder_with_user_id, clear_user_chache
 from utils.constants import URL_BORED_API
 from utils.exceptions import TooManyNotesError
@@ -42,7 +45,7 @@ async def create_note(
     try:
         new_note = await note_service.create_note(note, user.id)
     except TooManyNotesError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=str(e))
 
     await clear_user_chache(user)
     return new_note
@@ -59,9 +62,27 @@ async def create_random_note_if_bored(
     try:
         new_note = await note_service.create_note(note_data, user.id)
     except TooManyNotesError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=str(e))
     await clear_user_chache(user)
     return new_note
+
+
+@router.get("/send_notes_to_user_email")
+async def test(
+    user: User = Depends(current_user),
+):
+    user_dict = user.dict()
+    user_dict["notes"] = [
+        {"title": note.title, "description": note.description} for note in user.notes]
+    try:
+        send_email_with_notes.delay(user_dict)
+    except ValueError:
+        raise HTTPException(
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error: unable to send email")
+
+    return {"status": HTTP_200_OK,
+            "data": "The message has been sent"}
 
 
 @router.get("/{note_id}", response_model=Note)
@@ -72,7 +93,8 @@ async def read_note(
 ):
     note = await note_service.get_by_id(note_id, user.id)
     if note is None:
-        raise HTTPException(status_code=404, detail="Note not found")
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND,
+                            detail="Note not found")
     return note
 
 
@@ -84,7 +106,8 @@ async def update_note(
 ):
     updated_note = await note_service.update(note_id, note_data, user.id)
     if updated_note is None:
-        raise HTTPException(status_code=404, detail="Note not found")
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND,
+                            detail="Note not found")
     await clear_user_chache(user)
     return updated_note
 
@@ -98,6 +121,6 @@ async def delete_note(
     deleted_note = await note_service.delete(note_id, user.id)
     if deleted_note is None:
         raise HTTPException(
-            status_code=404, detail="Note not found")
+            status_code=HTTP_404_NOT_FOUND, detail="Note not found")
     await clear_user_chache(user)
     return deleted_note

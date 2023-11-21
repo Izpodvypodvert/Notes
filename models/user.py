@@ -12,7 +12,7 @@ class User(SQLModelBaseUserDB, table=True):
     """The user's model."""
     notes: List["Note"] = Relationship(
         back_populates="user",
-        sa_relationship_kwargs={"cascade": "delete"}
+        sa_relationship_kwargs={"cascade": "delete", "lazy": "selectin"}
     )
     categories: List["Category"] = Relationship(
         back_populates="user",
