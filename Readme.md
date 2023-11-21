@@ -16,12 +16,12 @@ This project uses a custom version of fastapi-cache2, modified to suit specific 
 
 ## Additional Features
 
-    Asynchronous Email Dispatch with Celery and Flower
-    This project leverages Celery, an asynchronous task queue, along with Flower for monitoring, to handle the dispatch of emails containing user Notes. Redis is used as the broker for these tasks.
+Asynchronous Email Dispatch with Celery and Flower
+This project leverages Celery, an asynchronous task queue, along with Flower for monitoring, to handle the dispatch of emails containing user Notes. Redis is used as the broker for these tasks.
 
-    Celery: Used for managing asynchronous tasks, specifically for sending emails in the background.
-    Flower: An accompanying tool for Celery that provides monitoring capabilities, allowing visibility into the task queue and performance.
-    Redis: Acts as a message broker for Celery, queuing the email tasks created by the application.
+Celery: Used for managing asynchronous tasks, specifically for sending emails in the background.
+Flower: An accompanying tool for Celery that provides monitoring capabilities, allowing visibility into the task queue and performance.
+Redis: Acts as a message broker for Celery, queuing the email tasks created by the application.
 
 ## Technology Stack
 
